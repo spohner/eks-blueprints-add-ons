@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: metrics-server
-  namespace: kube-metrics-server
+  namespace: kube-argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
@@ -18,7 +18,7 @@ spec:
         {{- toYaml .Values.metricsServer | nindent 10 }}
   destination:
     server: https://kubernetes.default.svc
-    namespace: kube-system
+    namespace: kube-metrics-server
   syncPolicy:
     automated:
       prune: true
