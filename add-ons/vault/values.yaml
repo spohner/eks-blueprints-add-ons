@@ -1,13 +1,24 @@
-# for details on all options
-# https://github.com/hashicorp/vault-helm/blob/main/values.yaml
 ui:
   enabled: true
-
-volumes:
-  - name: plugins
-    persistentVolumeClaim:
-      claimName: ebs-claim
-volumeMounts:
-  - mountPath: /etc/vault/vault_plugins
-    name: plugins
-    readOnly: true
+server:
+  extraInitContainers:
+    - name: keeper-init
+      image: "alpine"
+      command: [sh, -c]
+      args:
+        - cd /tmp &&
+          wget https://github.com/Keeper-Security/secrets-manager/releases/download/vault-plugin-secrets-ksm%2Fv1.0.2/vault-plugin-secrets-ksm_1.0.2_linux_amd64.zip -O ksm.zip &&
+          unzip -xf ksm.zip &&
+          mv vault-plugin-secrets-ksm-v1.0.2_linux_amd64 /usr/local/libexec/vault/ksm &&
+          chmod +x /usr/local/libexec/vault/ksm
+      volumeMounts:
+        - name: plugins
+          mountPath: /usr/local/libexec/vault
+  volumes:
+    - name: plugins
+      persistentVolumeClaim:
+        claimName: ebs-claim
+  volumeMounts:
+    - mountPath: /usr/local/libexec/vault
+      name: plugins
+      readOnly: true
